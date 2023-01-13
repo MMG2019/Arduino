@@ -1,0 +1,156 @@
+#include "pitches.h" // This library contains the note equivalent
+
+#define BUZZER_PIN 8 // we define the pin for the buzzer
+
+int melody[] = { // we create an array with the notes of the melody. 
+  REST, NOTE_D4,
+  NOTE_G4, NOTE_AS4, NOTE_A4,
+  NOTE_G4, NOTE_D5,
+  NOTE_C5, 
+  NOTE_A4,
+  NOTE_G4, NOTE_AS4, NOTE_A4,
+  NOTE_F4, NOTE_GS4,
+  NOTE_D4, 
+  NOTE_D4,
+  
+  NOTE_G4, NOTE_AS4, NOTE_A4,
+  NOTE_G4, NOTE_D5,
+  NOTE_F5, NOTE_E5,
+  NOTE_DS5, NOTE_B4,
+  NOTE_DS5, NOTE_D5, NOTE_CS5,
+  NOTE_CS4, NOTE_B4,
+  NOTE_G4,
+  NOTE_AS4,
+   
+  NOTE_D5, NOTE_AS4,
+  NOTE_D5, NOTE_AS4,
+  NOTE_DS5, NOTE_D5,
+  NOTE_CS5, NOTE_A4,
+  NOTE_AS4, NOTE_D5, NOTE_CS5,
+  NOTE_CS4, NOTE_D4,
+  NOTE_D5, 
+  REST, NOTE_AS4,  
+  
+  NOTE_D5, NOTE_AS4,
+  NOTE_D5, NOTE_AS4,
+  NOTE_F5, NOTE_E5,
+  NOTE_DS5, NOTE_B4,
+  NOTE_DS5, NOTE_D5, NOTE_CS5,
+  NOTE_CS4, NOTE_AS4,
+  NOTE_G4
+};
+
+int durations[] = { // we create another array for the length of each note
+  2, 4,
+  4, 8, 4,
+  2, 4,
+  2, 
+  2,
+  4, 8, 4,
+  2, 4,
+  1, 
+  4,
+  
+  4, 8, 4,
+  2, 4,
+  2, 4,
+  2, 4,
+  4, 8, 4,
+  2, 4,
+  1,
+  4,
+   
+  2, 4,
+  2, 4,
+  2, 4,
+  2, 4,
+  4, 8, 4,
+  2, 4,
+  1, 
+  4, 4,  
+  
+  2, 4,
+  2, 4,
+  2, 4,
+  2, 4,
+  4, 8, 4,
+  2, 4,
+  1
+};
+
+void setup()
+{
+
+  Serial.begin(9600); 
+  pinMode(BUZZER_PIN, OUTPUT); // We initialize the buzzer as an output device
+
+  for (int i=0;i<8;i++){ //initialize all the LEDs and set them to low
+    pinMode(i,OUTPUT);
+    digitalWrite(i,LOW);
+  }
+}
+
+void playLEDs(int tune, int duration){ // we create a function to turn the lights on and off depending on the tone
+
+Serial.println(tune);
+
+// If the tone is above 400 and below 500 then we turn on the two blue lights
+if (tune>400 && tune < 500){
+  digitalWrite(5,HIGH);
+  digitalWrite(6,HIGH);
+} else{ // if not we turn them off
+  digitalWrite(5,LOW);
+  digitalWrite(6,LOW);
+}
+
+if (tune<300 || tune >500){ // The same goes for the red LEDs. However, in this case we use an OR statement instead.
+  digitalWrite(4,HIGH);
+  digitalWrite(7,HIGH);
+} else{
+  digitalWrite(4,LOW);
+  digitalWrite(7,LOW);
+}
+
+if ( duration == 500 || duration == 1000){ 
+  // Finally if the duration of each note is of 1 second or half a second, then we turn on the yellow LEDs placed on the side
+  digitalWrite(2,HIGH);
+  digitalWrite(3,HIGH);
+} else{
+  digitalWrite(2,LOW);
+  digitalWrite(3,LOW);
+}
+
+
+
+
+}
+
+void loop()
+{
+
+
+  int size = sizeof(durations) / sizeof(int);
+
+  for (int note = 0; note < size; note++) {
+    //to calculate the note duration, take one second divided by the note type.
+    //e.g. quarter note = 1000 / 4, eighth note = 1000/8, etc.
+    int duration = 1000 / durations[note];
+   
+   // This is where we actually tell the buzzer what tone to play by giving it three parameters
+  // the number of the pin, the note, and the duration of said note. 
+    tone(BUZZER_PIN, melody[note], duration);
+
+    // This is where we call on the function we created to turn on the LEDs.
+    playLEDs(melody[note], duration);
+
+    //to distinguish the notes, set a minimum time between them.
+    //the note's duration + 30% seems to work well:
+    int pauseBetweenNotes = duration * 1.30;
+    delay(pauseBetweenNotes);
+    
+    //stops the tone playing:
+    noTone(BUZZER_PIN);
+  }
+}
+
+
